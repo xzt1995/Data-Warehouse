@@ -801,11 +801,11 @@ hadoop104
 
 ​    浏览器中输入：<http://hadoop102:50070/explorer.html#/>
 
-![QQ截图20191114232016](C:\Users\onlyi\Desktop\QQ截图20191114232016.png)
+
 
  浏览器中输入: <http://hadoop103:8088/cluster>
 
-![111](C:\Users\onlyi\Desktop\111.png)
+
 
 
 
