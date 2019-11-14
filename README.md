@@ -24,7 +24,7 @@
 
 ### 一：项目流程设计
 
-![系统流程设计](C:\Users\onlyi\Desktop\系统流程设计.png)
+![系统流程设计](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%B3%BB%E7%BB%9F%E6%B5%81%E7%A8%8B%E8%AE%BE%E8%AE%A1.png)
 
 ### 二：技术选型
 
@@ -40,7 +40,7 @@
 
 ### 三：集群规划
 
-![集群规划](C:\Users\onlyi\Desktop\集群规划.png)
+![集群规划](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92.png)
 
 
 
@@ -801,12 +801,12 @@ hadoop104
 
 ​    浏览器中输入：<http://hadoop102:50070/explorer.html#/>
 
-
+![namenode](https://github.com/xzt1995/Data-Warehouse/blob/master/img/namenode.png)
 
  浏览器中输入: <http://hadoop103:8088/cluster>
 
 
-
+![yarn](https://github.com/xzt1995/Data-Warehouse/blob/master/img/yarn.png)
 
 
 看到这两个页面就表示集群安装成功了。
