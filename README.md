@@ -40,7 +40,7 @@
 
 ### 三：集群规划
 
-![集群规划](C:\Users\onlyi\Desktop\集群规划.png)
+![集群规划]https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92.png)
 
 
 
