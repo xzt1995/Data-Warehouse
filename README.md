@@ -806,7 +806,7 @@ hadoop104
  浏览器中输入: <http://hadoop103:8088/cluster>
 
 
-
+![yarn](https://github.com/xzt1995/Data-Warehouse/blob/master/img/yarn.png)
 
 
 看到这两个页面就表示集群安装成功了。
