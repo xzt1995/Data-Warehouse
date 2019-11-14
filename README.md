@@ -24,7 +24,7 @@
 
 ### 一：项目流程设计
 
-![系统流程设计](C:\Users\onlyi\Desktop\系统流程设计.png)
+![系统流程设计](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%B3%BB%E7%BB%9F%E6%B5%81%E7%A8%8B%E8%AE%BE%E8%AE%A1.png)
 
 ### 二：技术选型
 
