@@ -425,7 +425,11 @@ done
 
 ### 3 安装Hadoop
 
-1 用filezilla工具将hadoop-2.7.2.tar.gz导入到opt目录下面的software文件夹下面.
+Hadoop下载地址：
+
+<https://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/>
+
+1 去用filezilla工具将hadoop-2.7.2.tar.gz导入到opt目录下面的software文件夹下面.
 
 2 进入到Hadoop安装包路径下
 
@@ -827,7 +831,7 @@ start-dfs.sh   /  stop-dfs.sh
 
 ### 7配置lzo压缩
 
-1）先下载lzo的jar项目(我在jar/hadoop里面已经放了一个jar包，嫌麻烦的直接用)
+1）先下载lzo的jar项目(我在jars/hadoop里面已经放了一个jar包，嫌麻烦的直接用)
 
 <https://github.com/twitter/hadoop-lzo/archive/master.zip>
 
