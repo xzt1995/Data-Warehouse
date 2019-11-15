@@ -421,7 +421,7 @@ done
 [xzt@hadoop102 bin]$ chmod 777 xsync
 ```
 
-注意：如果将xsync放到/home/atguigu/bin目录下仍然不能实现全局使用，可以将xsync移动到/usr/local/bin目录下。
+注意：如果将xsync放到/home/xzt/bin目录下仍然不能实现全局使用，可以将xsync移动到/usr/local/bin目录下。
 
 ### 3 安装Hadoop
 
