@@ -12,7 +12,7 @@
 
 ### 4 针对数据仓库中的数据进行业务分析
 
-该项目仅供个人学习使用
+### 5 **该项目仅供个人学习使用**
 
 ## 一 ： 前期准备
 
@@ -139,7 +139,7 @@ xzt   ALL=(ALL)    NOPASSWD:ALL
 
 
 
-注意：以上几步在三台服务器都要操作一遍！！
+**注意：以上几步在三台服务器都要操作一遍！！**
 
 
 
@@ -366,7 +366,13 @@ xzt   ALL=(ALL)    NOPASSWD:ALL
 
 用idea打开\jars\java下的logcollector工程，打包（带依赖），后续装完Hadoop和zookeeper后使用。
 
-## 三：安装Hadoop（以下步骤使用我们创建的用户xzt来操作，不要用root）
+
+
+
+
+
+
+## 三：安装Hadoop（以下步骤使用我们创建的用户来操作，不要用root）
 
 ### 1 集群规划
 
@@ -1210,10 +1216,10 @@ app-2019-02-10.log
 
 #### 6) 集群时间同步修改脚本
 
-​	1）在/home/x'z't/bin目录下创建脚本dt.sh
+​	1）在/home/xzt/bin目录下创建脚本dt.sh
 
 ```
-[x'z't@hadoop102 bin]$ vim dt.sh
+[xzt@hadoop102 bin]$ vim dt.sh
 ```
 
 ​        2）在脚本中编写如下内容
@@ -1278,4 +1284,338 @@ done
 ```
 [xzt@hadoop102 bin]$ xcall.sh jps
 ```
+
+
+
+
+
+
+
+## 六 采集日志flume 
+
+
+
+### 1 集群规划
+
+![日志采集flume](C:\Users\onlyi\Desktop\日志采集flume.png)
+
+
+
+从红框中选中的区域我们可以看到，服务器生成日志文件logFile，我们利用flume采集日志文件，然后将文件发给Kafka集群，此时的flume相当于Kafka的生产者。
+
+
+
+### 2 flume安装
+
+|             | 服务器hadoop102 | 服务器hadoop103 | 服务器hadoop104 |
+| ----------- | ------------ | ------------ | ------------ |
+| Flume(采集日志) | Flume        | Flume        |              |
+
+采集日志的flume我们安装在102和103上，后续我们104上会安装消费kafka的flume，这边先不安装，后续等卡夫卡安装完毕后再安装104.
+
+
+
+#### 1 Flume安装地址
+
+1） Flume官网地址
+
+<http://flume.apache.org/>
+
+2）文档查看地址
+
+<http://flume.apache.org/FlumeUserGuide.html>
+
+这里多说一句，flume的文档是我看过英文文档里面可阅读性最好的，就算英文不好也能很快适应，点赞！
+
+3）下载地址
+
+http://archive.apache.org/dist/flume/  （**注意！！我们使用的是1.70版本。不要用其他版本，有可能会有兼容性问题**）
+
+#### 2 安装部署
+
+1）将apache-flume-1.7.0-bin.tar.gz上传到linux的/opt/software目录下
+
+2）解压apache-flume-1.7.0-bin.tar.gz到/opt/module/目录下
+
+```
+[xzt@hadoop102 software]$ tar -zxvf apache-flume-1.7.0-bin.tar.gz -C /opt/module/
+```
+
+3）修改apache-flume-1.7.0-bin的名称为flume
+
+```
+[xzt@hadoop102 module]$ mv apache-flume-1.7.0-bin flume
+```
+
+4）将flume/conf下的flume-env.sh.template文件修改为flume-env.sh，并配置flume-env.sh文件
+
+```
+[xzt@hadoop102 conf]$ mv flume-env.sh.template flume-env.sh
+```
+
+```
+[xzt@hadoop102 conf]$ vi flume-env.sh
+```
+
+```
+export JAVA_HOME=/opt/module/jdk1.8.0_144  (根据你自己安装JDK的地址来填写)
+```
+
+5) 分发flume
+
+```
+[xzt@hadoop102 module]$ xsync flume/
+```
+
+### 3 Flume监控之Ganglia（可选）
+
+ganglia 是用来监控flume运行情况的一个组件，一般用在flume集群搭建完之后，跑测试程序时用来监控flume集群的性能的，在这边有兴趣的同学可以尝试装一下，前提是你的机器性能不能太差（内存<16G）.
+
+##### 1)   安装httpd服务与php
+
+```
+[xzt@hadoop102 flume]$ sudo yum -y install httpd php
+```
+
+##### 2)   安装其他依赖
+
+```
+[xzt@hadoop102 flume]$ sudo yum -y install rrdtool perl-rrdtool rrdtool-devel
+```
+
+```
+[xzt@hadoop102 flume]$ sudo yum -y install apr-devel
+```
+
+##### 3)   安装ganglia
+
+```
+[xzt@hadoop102 flume]$ sudo rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+```
+
+```
+[xzt@hadoop102 flume]$ sudo yum -y install ganglia-gmetad 
+```
+
+```
+[xzt@hadoop102 flume]$ sudo yum -y install ganglia-web
+```
+
+```
+[xzt@hadoop102 flume]$ sudo yum install -y ganglia-gmond
+```
+
+##### 4)   修改配置文件/etc/httpd/conf.d/ganglia.conf
+
+```
+[xzt@hadoop102 flume]$ sudo vim /etc/httpd/conf.d/ganglia.conf
+```
+
+**修改配置：**
+
+```
+# Ganglia monitoring system php web frontend
+Alias /ganglia /usr/share/ganglia
+<Location /ganglia>
+  Order deny,allow
+  Deny from all
+  Allow from all
+  # Allow from 127.0.0.1
+  # Allow from ::1
+  # Allow from .example.com
+</Location>
+```
+
+****
+
+
+
+##### 5)   修改配置文件/etc/ganglia/gmetad.conf
+
+```
+[xzt@hadoop102 flume]$ sudo vim /etc/ganglia/gmetad.conf
+```
+
+**修改为：**
+
+```
+data_source "hadoop102"192.168.1.102(ip根据你的情况填写)
+```
+
+##### 6)   修改配置文件/etc/ganglia/gmond.conf
+
+```
+[xzt@hadoop102 flume]$ sudo vim /etc/ganglia/gmond.conf 
+```
+
+**修改为：**
+
+
+
+```
+cluster {
+
+ name = "hadoop102"
+
+ owner = "unspecified"
+
+ latlong = "unspecified"
+
+  url= "unspecified"
+
+}
+
+udp_send_channel {
+
+ #bind_hostname = yes # Highly recommended, soon to be default.
+
+                       # This option tellsgmond to use a source address
+
+                       # that resolves to themachine's hostname.  Without
+
+                       # this, the metrics mayappear to come from any
+
+                       # interface and the DNSnames associated with
+
+                       # those IPs will be usedto create the RRDs.
+
+  # mcast_join =239.2.11.71
+
+  host = 192.168.1.102
+
+ port = 8649
+
+  ttl= 1
+
+}
+
+udp_recv_channel {
+
+ # mcast_join = 239.2.11.71
+
+ port = 8649
+
+ bind = 192.168.1.102
+
+ retry_bind = true
+
+  #Size of the UDP buffer. If you are handling lots of metrics you really
+
+  #should bump it up to e.g. 10MB or even higher.
+
+  #buffer = 10485760
+
+}
+```
+
+
+
+##### **7) **修改配置文件/etc/selinux/config
+
+```
+[xzt@hadoop102 flume]$ sudo vim /etc/selinux/config
+```
+
+```
+# This file controls the state of SELinuxon the system.
+
+# SELINUX= can take one of these threevalues:
+
+#    enforcing - SELinux security policy is enforced.
+
+#    permissive - SELinux prints warnings instead of enforcing.
+
+#    disabled - No SELinux policy is loaded.
+
+SELINUX=disabled
+
+# SELINUXTYPE= can take one of these twovalues:
+
+#    targeted - Targeted processes are protected,
+
+#    mls - Multi Level Security protection.
+
+SELINUXTYPE=targeted
+
+```
+
+
+
+**尖叫提示：selinux本次生效关闭必须重启，如果此时不想重启，可以临时生效之：**
+
+```
+[xzt@hadoop102 flume]$ sudo setenforce 0
+```
+
+##### 5)   启动ganglia
+
+```
+[xzt@hadoop102 flume]$ sudo service httpd start
+```
+
+```
+[xzt@hadoop102 flume]$ sudo service gmetad start
+
+```
+
+```
+[xzt@hadoop102 flume]$ sudo service gmond start
+```
+
+##### 6)   打开网页浏览ganglia页面
+
+<http://192.168.1.102/ganglia>
+
+尖叫提示：如果完成以上操作依然出现权限不足错误，请修改/var/lib/ganglia目录的权限：
+
+```
+[xzt@hadoop102 flume]$ sudo chmod -R 777 /var/lib/ganglia
+```
+
+
+
+##### 7）操作Flume测试监控
+
+
+
+1)   修改/opt/module/flume/conf目录下的flume-env.sh配置：
+
+```
+JAVA_OPTS="-Dflume.monitoring.type=ganglia
+
+-Dflume.monitoring.hosts=192.168.1.102:8649
+
+-Xms100m
+
+-Xmx200m"
+```
+
+
+
+2)   启动Flume任务
+
+```
+[xzt@hadoop102 flume]$ bin/flume-ng agent \
+
+--conf conf/ \
+
+--name a1 \
+
+--conf-file job/flume-telnet-logger.conf \ (如果你是跟着文档走下来的，这块会报错，因为刚安装的没有job,你可以随便写一个案例来监控，替换掉flume-telnet-logger.conf)
+
+-Dflume.root.logger==INFO,console \
+
+-Dflume.monitoring.type=ganglia \
+
+-Dflume.monitoring.hosts=192.168.1.102:8649
+
+```
+
+3) 发送数据观察ganglia监测图
+
+```
+[xzt@hadoop102 flume]$ telnet localhost 44444
+```
+
+![ganggia](C:\Users\onlyi\Desktop\ganggia.png)
 
