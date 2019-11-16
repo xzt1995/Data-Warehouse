@@ -829,7 +829,7 @@ start-dfs.sh   /  stop-dfs.sh
 
 
 
-### 7配置lzo压缩
+### 7 配置lzo压缩
 
 1）先下载lzo的jar项目(我在jars/hadoop里面已经放了一个jar包，嫌麻烦的直接用)
 
@@ -877,5 +877,405 @@ com.hadoop.compression.lzo.LzopCodec
 
 ```
 [xzt@hadoop102 hadoop]$ xsynccore-site.xml
+```
+
+### 8 参数调优（本项目不需要，供学习使用）
+
+#### 1）HDFS参数调优hdfs-site.xml
+
+（1）dfs.namenode.handler.count=20 * log2(Cluster Size)，比如集群规模为10台时，此参数设置为60
+
+```
+Thenumber of Namenode RPC server threads that listen to requests from clients. Ifdfs.namenode.servicerpc-address is not configured then Namenode RPC serverthreads listen to requests from all nodes.
+
+NameNode有一个工作线程池，用来处理不同DataNode的并发心跳以及客户端并发的元数据操作。对于大集群或者有大量客户端的集群来说，通常需要增大参数dfs.namenode.handler.count的默认值10。设置该值的一般原则是将其设置为集群大小的自然对数乘以20，即20logN，N为集群大小。
+
+```
+
+（2）编辑日志存储路径dfs.namenode.edits.dir设置与镜像文件存储路径dfs.namenode.name.dir尽量分开，达到最低写入延迟
+
+#### 2）YARN参数调优yarn-site.xml
+
+（1）情景描述：总共7台机器，每天几亿条数据，数据源->Flume->Kafka->HDFS->Hive
+
+面临问题：数据统计主要用HiveSQL，没有数据倾斜，小文件已经做了合并处理，开启的JVM重用，而且IO没有阻塞，内存用了不到50%。但是还是跑的非常慢，而且数据量洪峰过来时，整个集群都会宕掉。基于这种情况有没有优化方案。
+
+（2）解决办法：
+
+内存利用率不够。这个一般是Yarn的2个配置造成的，单个任务可以申请的最大内存大小，和Hadoop单个节点可用内存大小。调节这两个参数能提高系统内存的利用率。
+
+（a）yarn.nodemanager.resource.memory-mb
+
+表示该节点上YARN可使用的物理内存总量，默认是8192（MB），注意，如果你的节点内存资源不够8GB，则需要调减小这个值，而YARN不会智能的探测节点的物理内存总量。
+
+（b）yarn.scheduler.maximum-allocation-mb
+
+单个任务可申请的最多物理内存量，默认是8192（MB）。
+
+#### 3）Hadoop宕机
+
+（1）如果MR造成系统宕机。此时要控制Yarn同时运行的任务数，和每个任务申请的最大内存。调整参数：yarn.scheduler.maximum-allocation-mb（单个任务可申请的最多物理内存量，默认是8192MB）
+
+（2）如果写入文件过量造成NameNode宕机。那么调高Kafka的存储大小，控制从Kafka到HDFS的写入速度。高峰期的时候用Kafka进行缓存，高峰期过去数据同步会自动跟上。
+
+
+
+## 四 zookeeper安装
+
+### 1 集群规划
+
+|           | 服务器hadoop102 | 服务器hadoop103 | 服务器hadoop104 |
+| --------- | ------------ | ------------ | ------------ |
+| Zookeeper | Zookeeper    | Zookeeper    | Zookeeper    |
+
+### 2 安装步骤
+
+#### 1 将jars/zookeeper下的安装包拷贝的102下的/opt/software目录下
+
+#### 2 解压到/opt/module
+
+```
+[xzt@hadoop102 software]$ tar -zxvf zookeeper-3.4.10.tar.gz -C /opt/module/
+```
+
+#### 3 同步到103，104
+
+```
+[xzt@hadoop102 module]$ xsync zookeeper-3.4.10/
+```
+
+#### 4 配置服务器编号
+
+（1）在/opt/module/zookeeper-3.4.10/这个目录下创建zkData
+
+```
+[xzt@hadoop102 zookeeper-3.4.10]$ mkdir zkData
+```
+
+（2）在/opt/module/zookeeper-3.4.10/zkData目录下创建一个myid的文件
+
+```
+[xzt@hadoop102 zkData]$ touch myid
+```
+
+**添加myid文件，注意一定要在linux里面创建，在notepad++里面很可能乱码**
+
+（3）编辑myid文件
+
+在文件中添加与server对应的编号：
+
+```
+2
+```
+
+（4）其他机器上配置
+
+```
+分别在hadoop103、hadoop104上添加myid文件中内容为3、4
+```
+
+#### 5 配置zoo.cfg文件
+
+（1）重命名/opt/module/zookeeper-3.4.10/conf这个目录下的zoo_sample.cfg为zoo.cfg
+
+```
+[xzt@hadoop102conf]$ mv zoo_sample.cfg zoo.cfg
+```
+
+（2）打开zoo.cfg文件
+
+```
+1 修改数据存储路径配置
+
+dataDir=/opt/module/zookeeper-3.4.10/zkData
+
+2 增加如下配置
+
+#######################cluster##########################
+
+server.2=hadoop102:2888:3888
+
+server.3=hadoop103:2888:3888
+
+server.4=hadoop104:2888:3888
+
+```
+
+
+
+（3）同步zoo.cfg配置文件
+
+```
+[xzt@hadoop102 conf]$ xsync zoo.cfg
+```
+
+（4）配置参数解读
+
+server.A=B:C:D。
+
+**A**是一个数字，表示这个是第几号服务器；
+
+集群模式下配置一个文件myid，这个文件在dataDir目录下，这个文件里面有一个数据就是A的值，Zookeeper启动时读取此文件，拿到里面的数据与zoo.cfg里面的配置信息比较从而判断到底是哪个server。
+
+**B**是这个服务器的ip地址；
+
+**C**是这个服务器与集群中的Leader服务器交换信息的端口；
+
+**D**是万一集群中的Leader服务器挂了，需要一个端口来重新进行选举，选出一个新的Leader，而这个端口就是用来执行选举时服务器相互通信的端口。
+
+#### 6  ZK集群启动停止脚本
+
+1）在hadoop102的/home/xzt/bin目录下创建脚本
+
+```
+[xzt@hadoop102 bin]$ vim zk.sh
+```
+
+​        在脚本中编写如下内容
+
+```
+#! /bin/bash
+
+case $1 in
+
+"start"){
+
+   for i in hadoop102 hadoop103 hadoop104
+
+   do
+
+      ssh $i "/opt/module/zookeeper-3.4.10/bin/zkServer.sh start"
+
+   done
+
+};;
+
+"stop"){
+
+   for i in hadoop102 hadoop103 hadoop104
+
+   do
+
+      ssh $i "/opt/module/zookeeper-3.4.10/bin/zkServer.sh stop"
+
+   done
+
+};;
+
+"status"){
+
+   for i in hadoop102 hadoop103 hadoop104
+
+   do
+
+      ssh $i "/opt/module/zookeeper-3.4.10/bin/zkServer.sh status"
+
+   done
+
+};;
+
+esac
+
+```
+
+2）增加脚本执行权限
+
+```
+[xzt@hadoop102 bin]$ chmod 777 zk.sh
+```
+
+3）Zookeeper集群启动脚本
+
+```
+[xzt@hadoop102 module]$ zk.sh start
+```
+
+4）Zookeeper集群停止脚本
+
+```
+[xzt@hadoop102 module]$ zk.sh stop
+```
+
+#### 7 Linux环境变量
+
+1）修改/etc/profile文件：用来设置系统环境参数，比如$PATH. 这里面的环境变量是对系统内所有用户生效。使用bash命令，需要source  /etc/profile一下。
+
+2）修改~/.bashrc文件：针对某一个特定的用户，环境变量的设置只对该用户自己有效。使用bash命令，只要以该用户身份运行命令行就会读取该文件。
+
+3）把/etc/profile里面的环境变量追加到~/.bashrc目录
+
+```
+[xzt@hadoop102 ~]$ cat /etc/profile>> ~/.bashrc
+
+[xzt@hadoop103 ~]$ cat /etc/profile>> ~/.bashrc
+
+[xzt@hadoop104 ~]$ cat /etc/profile>> ~/.bashrc
+
+```
+
+## 五 日志生成
+
+
+
+#### 1）代码参数说明
+
+
+
+```
+// 参数一：控制发送每条的延时时间，默认是0
+
+Longdelay = args.length > 0 ? Long.parseLong(args[0]) : 0L;
+
+// 参数二：循环遍历次数
+
+intloop_len = args.length > 1 ? Integer.parseInt(args[1]) : 1000;
+
+```
+
+
+
+#### 2）上传jar包
+
+将之前生成的jar包 log-collector-0.0.1-SNAPSHOT-jar-with-dependencies.jar拷贝到hadoop102服务器/opt/module上，并同步到hadoop103的/opt/module路径下
+
+```
+[xzt@hadoop102 module]$ xsync log-collector-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
+我的电脑是16G内存，经测试只能在103，102上执行数据采集flume,否则性能不够，集群会瘫痪，因此我们就在102，103上上传jar包 ，把104上面的jar包删除。
+
+#### 3）在hadoop102上执行jar程序
+
+```
+[xzt@hadoop102 module]$ java -classpath log-collector-1.0-SNAPSHOT-jar-with-dependencies.jar  com.xzt.appclient.AppMain  >/opt/module/test.log
+```
+
+
+
+#### 4）在/tmp/logs路径下查看生成的日志文件
+
+```
+[xzt@hadoop102 module]$ cd /tmp/logs/
+
+[xzt@hadoop102 logs]$ ls
+
+app-2019-02-10.log
+
+```
+
+#### 5) 日志采集脚本编写
+
+​       1）在/home/xzt/bin目录下创建脚本lg.sh
+
+```
+[xzt@hadoop102 bin]$ vim lg.sh
+```
+
+​        2）在脚本中编写如下内容
+
+```
+#! /bin/bash
+
+	for i in hadoop102 hadoop103 
+	do
+		ssh $i "java -classpath /opt/module/log-collector-1.0-SNAPSHOT-jar-with-dependencies.jar com.xzt.appclient.AppMain $1 $2 >/opt/module/test.log &"
+	done
+```
+
+
+
+3）修改脚本执行权限
+
+```
+[xzt@hadoop102 bin]$ chmod 777 lg.sh
+```
+
+4）启动脚本
+
+```
+[xzt@hadoop102 module]$ lg.sh 
+```
+
+5）分别在hadoop102、hadoop103的/tmp/logs目录上查看生成的数据
+
+```
+[xzt@hadoop102 logs]$ ls
+app-2019-02-10.log
+```
+
+```
+[xzt@hadoop103 logs]$ ls
+app-2019-02-10.log
+```
+
+#### 6) 集群时间同步修改脚本
+
+​	1）在/home/x'z't/bin目录下创建脚本dt.sh
+
+```
+[x'z't@hadoop102 bin]$ vim dt.sh
+```
+
+​        2）在脚本中编写如下内容
+
+```
+#!/bin/bash
+
+log_date=$1
+
+for i in hadoop102 hadoop103 hadoop104
+do
+	ssh -t $i "sudo date -s $log_date"
+done
+
+```
+
+说明（ssh -t）：https://www.cnblogs.com/kevingrace/p/6110842.html
+
+3）修改脚本执行权限
+
+```
+[xzt@hadoop102 bin]$ chmod 777 dt.sh
+```
+
+4）启动脚本
+
+```
+[xzt@hadoop102 bin]$ dt.sh 2019-2-10
+[xzt@hadoop102 bin]$ date 
+```
+
+#### 7）集群所有进程查看脚本
+
+1）在/home/xzt/bin目录下创建脚本xcall.sh,该脚本可以在三台服务器上同时执行同一个命令
+
+```
+[xzt@hadoop102 bin]$ vim xcall.sh
+```
+
+​        2）在脚本中编写如下内容
+
+```
+#! /bin/bash
+
+for i in hadoop102 hadoop103 hadoop104
+do
+        echo --------- $i ----------
+        ssh $i "$*"
+done
+
+```
+
+3）修改脚本执行权限
+
+```
+[xzt@hadoop102 bin]$ chmod 777 xcall.sh
+```
+
+
+4）启动脚本
+
+```
+[xzt@hadoop102 bin]$ xcall.sh jps
 ```
 
