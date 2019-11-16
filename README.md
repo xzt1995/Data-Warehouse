@@ -1297,7 +1297,7 @@ done
 
 ### 1 集群规划
 
-![日志采集flume](C:\Users\onlyi\Desktop\日志采集flume.png)
+![日志采集flume](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E6%97%A5%E5%BF%97%E9%87%87%E9%9B%86flume.png)
 
 
 
@@ -1617,5 +1617,5 @@ JAVA_OPTS="-Dflume.monitoring.type=ganglia
 [xzt@hadoop102 flume]$ telnet localhost 44444
 ```
 
-![ganggia](C:\Users\onlyi\Desktop\ganggia.png)
+![ganggia](https://github.com/xzt1995/Data-Warehouse/blob/master/img/ganggia.png)
 
