@@ -244,30 +244,30 @@ xzt   ALL=(ALL)    NOPASSWD:ALL
 
 2.1 商品列表页(loading)
 
-| 标签             | 含义                                  |
-| ---------------- | ---------------------------------------- |
-| action           | 动作：开始加载=1，加载成功=2，加载失败=3                  |
-| loading_time     | 加载时长：计算下拉开始到接口返回数据的时间，（开始加载报0，加载成功或加载失败才上报时间） |
-| loading_way      | 加载类型：1-读取缓存，2-从接口拉新数据  （加载成功才上报加载类型）     |
-| extend1          | 扩展字段  Extend1                     |
-| extend2          | 扩展字段  Extend2                             |
-| type             | 加载类型：自动加载=1，用户下拽加载=2，底部加载=3（底部条触发点击底部提示条/点击返回顶部加载） |
-| type1            | 加载失败码：把加载失败状态码报回来（报空为加载成功，没有失败）          |
+| 标签           | 含义                                       |
+| ------------ | ---------------------------------------- |
+| action       | 动作：开始加载=1，加载成功=2，加载失败=3                  |
+| loading_time | 加载时长：计算下拉开始到接口返回数据的时间，（开始加载报0，加载成功或加载失败才上报时间） |
+| loading_way  | 加载类型：1-读取缓存，2-从接口拉新数据  （加载成功才上报加载类型）     |
+| extend1      | 扩展字段  Extend1                            |
+| extend2      | 扩展字段  Extend2                            |
+| type         | 加载类型：自动加载=1，用户下拽加载=2，底部加载=3（底部条触发点击底部提示条/点击返回顶部加载） |
+| type1        | 加载失败码：把加载失败状态码报回来（报空为加载成功，没有失败）          |
 
 2.2 商品点击(display)
 
-| 标签         | 含义                     |
-| ------------ | -------------------------- |
-| action       | 动作：曝光商品=1，点击商品=2，          |
-| goodsid      | 商品ID（服务端下发的ID）             |
-| place        | 顺序（第几条商品，第一条为0，第二条为1，如此类推） |
-| extend1      | 曝光类型：1 - 首次曝光 2-重复曝光       |
-| category     | 分类ID（服务端定义的分类ID）           |
+| 标签       | 含义                         |
+| -------- | -------------------------- |
+| action   | 动作：曝光商品=1，点击商品=2，          |
+| goodsid  | 商品ID（服务端下发的ID）             |
+| place    | 顺序（第几条商品，第一条为0，第二条为1，如此类推） |
+| extend1  | 曝光类型：1 - 首次曝光 2-重复曝光       |
+| category | 分类ID（服务端定义的分类ID）           |
 
 2.3 商品详情页(newsdetail)
 
-| 标签            | 含义                                   |
-| ----------------- | ---------------------------------------- |
+| 标签            | 含义                                       |
+| ------------- | ---------------------------------------- |
 | entry         | 页面入口来源：应用首页=1、push=2、详情页相关推荐=3           |
 | action        | 动作：开始加载=1，加载成功=2（pv），加载失败=3, 退出页面=4      |
 | goodsid       | 商品ID（服务端下发的ID）                           |
@@ -280,7 +280,7 @@ xzt   ALL=(ALL)    NOPASSWD:ALL
 2.4 广告(ad)
 
 | 标签         | 含义****                                   |
-| -------------- | ---------------------------------------- |
+| ---------- | ---------------------------------------- |
 | entry      | 入口：商品列表页=1  应用首页=2 商品详情页=3               |
 | action     | 动作：请求广告=1 取缓存广告=2  广告位展示=3 广告展示=4 广告点击=5 |
 | content    | 状态：成功=1  失败=2                            |
@@ -292,25 +292,25 @@ xzt   ALL=(ALL)    NOPASSWD:ALL
 
 2.5 消息通知(notification)
 
-| 标签        | 含义                                    |
-| ----------- | ---------------------------------------- |
-| action      | 动作：通知产生=1，通知弹出=2，通知点击=3，常驻通知展示（不重复上报，一天之内只报一次）=4 |
-| type        | 通知id：预警通知=1，天气预报（早=2，晚=3），常驻=4           |
-| ap_time     | 客户端弹出时间                                  |
-| content     | 备用字段                                     |
+| 标签      | 含义                                       |
+| ------- | ---------------------------------------- |
+| action  | 动作：通知产生=1，通知弹出=2，通知点击=3，常驻通知展示（不重复上报，一天之内只报一次）=4 |
+| type    | 通知id：预警通知=1，天气预报（早=2，晚=3），常驻=4           |
+| ap_time | 客户端弹出时间                                  |
+| content | 备用字段                                     |
 
 2.6 用户前台活跃(active_foreground)
 
-| 标签         | 含义                    |
-| ----------- | ----------------------- |
-| push_id     | 推送的消息的id，如果不是从推送消息打开，传空 |
-| access      | 1.push  2.icon 3.其他     |
+| 标签      | 含义                      |
+| ------- | ----------------------- |
+| push_id | 推送的消息的id，如果不是从推送消息打开，传空 |
+| access  | 1.push  2.icon 3.其他     |
 
 2.7 用户后台活跃(active_background)
 
-| 标签              | 含义                                    |
-| ----------------- | ---------------------------------------- |
-| active_source     | 1=upgrade,2=download(下载),3=plugin_upgrade |
+| 标签            | 含义                                       |
+| ------------- | ---------------------------------------- |
+| active_source | 1=upgrade,2=download(下载),3=plugin_upgrade |
 
 2.8 评论（comment）
 
@@ -346,21 +346,21 @@ xzt   ALL=(ALL)    NOPASSWD:ALL
 
 2.11错误日志
 
-| errorBrief      | 错误摘要 |
-| --------------- | ---- |
-| errorDetail     | 错误详情 |
+| errorBrief  | 错误摘要 |
+| ----------- | ---- |
+| errorDetail | 错误详情 |
 
 ### 3 启动日志数据
 
-| 标签             | 含义                                      |
-| ---------------- | ---------------------------------------- |
-| entry            | 入口： push=1，widget=2，icon=3，notification=4, lockscreen_widget =5 |
-| open_ad_type     | 开屏广告类型:  开屏原生广告=1, 开屏插屏广告=2              |
-| action           | 状态：成功=1  失败=2                            |
-| loading_time     | 加载时长：计算下拉开始到接口返回数据的时间，（开始加载报0，加载成功或加载失败才上报时间） |
-| detail           | 失败码（没有则上报空）                              |
-| extend1          | 失败的message（没有则上报空）                       |
-| en               | 日志类型start                                |
+| 标签           | 含义                                       |
+| ------------ | ---------------------------------------- |
+| entry        | 入口： push=1，widget=2，icon=3，notification=4, lockscreen_widget =5 |
+| open_ad_type | 开屏广告类型:  开屏原生广告=1, 开屏插屏广告=2              |
+| action       | 状态：成功=1  失败=2                            |
+| loading_time | 加载时长：计算下拉开始到接口返回数据的时间，（开始加载报0，加载成功或加载失败才上报时间） |
+| detail       | 失败码（没有则上报空）                              |
+| extend1      | 失败的message（没有则上报空）                       |
+| en           | 日志类型start                                |
 
 ### 4 数据生成脚本
 
@@ -1618,4 +1618,199 @@ JAVA_OPTS="-Dflume.monitoring.type=ganglia
 ```
 
 ![ganggia](https://github.com/xzt1995/Data-Warehouse/blob/master/img/ganggia.png)
+
+
+
+
+
+### 4 flume 组件
+
+
+
+#### 1）Source
+
+##### （1）Taildir Source相比Exec Source、Spooling Directory Source的优势
+
+TailDir Source：断点续传、多目录。Flume1.6以前需要自己自定义Source记录每次读取文件位置，实现断点续传。
+
+Exec Source可以实时搜集数据，但是在Flume不运行或者Shell命令出错的情况下，数据将会丢失。
+
+Spooling Directory Source 监控目录，不支持断点续传。
+
+##### （2）batchSize大小如何设置？
+
+答：Event 1K左右时，500-1000合适（默认为100）
+
+#### 2）Channel
+
+采用Kafka Channel，省去了Sink，提高了效率。
+
+
+
+### 5 日志采集Flume配置
+
+
+
+![日志采集flume配置](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\日志采集flume配置.png)
+
+
+
+Flume直接读log日志的数据，log日志的格式是app-yyyy-mm-dd.log。通过两个kafka channel 来连接kafka的不同topic。
+
+这边我们要自定义一个ETL拦截器和一个类型区分拦截器，来对初始数据进行简单的清洗，并将启动日志和事件日志区分开，发往不同的topic。
+
+
+
+#### 1 flume具体配置
+
+（1）在/opt/module/flume/conf目录下创建file-flume-kafka.conf文件
+
+```
+[xzt@hadoop102 conf]$ vim file-flume-kafka.conf
+```
+
+  (2) 具体配置
+
+```shell
+# 组件定义
+a1.sources=r1
+a1.channels=c1 c2
+
+# configure source
+a1.sources.r1.type = TAILDIR
+# 记录文件索引节点的目录，实现断点续传
+a1.sources.r1.positionFile = /opt/module/flume/test/log_position.json
+a1.sources.r1.channels = c1 c2 
+# 监控的目录
+a1.sources.r1.filegroups = f1 
+a1.sources.r1.filegroups.f1 = /tmp/logs/app.+
+a1.sources.r1.fileHeader = true
+
+#interceptor 拦截器
+a1.sources.r1.interceptors =  i1 i2
+a1.sources.r1.interceptors.i1.type = com.xzt.flume.interceptor.LogETLInterceptor$Builder
+a1.sources.r1.interceptors.i2.type = com.xzt.flume.interceptor.LogTypeInterceptor$Builder
+
+#channels 选择器
+a1.sources.r1.selector.type = multiplexing
+a1.sources.r1.selector.header = topic
+a1.sources.r1.selector.mapping.topic_start = c1
+a1.sources.r1.selector.mapping.topic_event = c2
+
+# configure channel
+a1.channels.c1.type = org.apache.flume.channel.kafka.KafkaChannel
+# kafka 集群
+a1.channels.c1.kafka.bootstrap.servers = hadoop102:9092,hadoop103:9092,hadoop104:9092
+# kafka topic
+a1.channels.c1.kafka.topic = topic_start
+# 默认是true , 会在解析完json后在前面加一个topic主题的前缀 ，这边我们不需要，否则到HIVE后还要将前缀去掉
+a1.channels.c1.parseAsFlumeEvent = false
+# kafka 消费者组
+a1.channels.c1.kafka.consumer.group.id = flume-consumer
+
+a1.channels.c2.type = org.apache.flume.channel.kafka.KafkaChannel
+a1.channels.c2.kafka.bootstrap.servers = hadoop102:9092,hadoop103:9092,hadoop104:9092
+a1.channels.c2.kafka.topic = topic_event
+a1.channels.c2.parseAsFlumeEvent = false
+a1.channels.c2.kafka.consumer.group.id = flume-consumer
+
+```
+
+
+
+（3）  分发到Hadoop103
+
+
+
+#### 2 Flume的ETL和分类型拦截器
+
+本项目中自定义了两个拦截器，分别是：ETL拦截器、日志类型区分拦截器。
+
+ETL拦截器主要用于，过滤时间戳不合法和Json数据不完整的日志
+
+日志类型区分拦截器主要用于，将启动日志和事件日志区分开来，方便发往Kafka的不同Topic。
+
+工程已经放在了Data-Warehouse\jars\flume ， 可以用idea打开看一下是如何写的。
+
+1 先定义一个类去实现org.apache.flume.interceptor.Interceptor;
+
+2 重写四个方法
+
+3 写一个内部静态类Builder方便后续启动
+
+
+
+1）需要先将打好的包（flume-interceptor-1.0-SNAPSHOT.jar）放入到hadoop102的/opt/module/flume/lib文件夹下面。
+
+2）分发到hadoop103、hadoop104
+
+```
+[xzt@hadoop102 lib]$ xsync flume-interceptor-1.0-SNAPSHOT.jar 
+```
+
+ 3）启动flume
+
+```
+[xzt@hadoop102 flume]$ bin/flume-ng agent --name a1 --conf-file conf/file-flume-kafka.conf &
+```
+
+
+
+
+
+### 6 日志采集Flume启动停止脚本
+
+1）在/home/xzt/bin目录下创建脚本f1.sh ,  在脚本中填写如下内容
+
+```shell
+#! /bin/bash
+
+case $1 in
+"start"){
+       for i in hadoop102 hadoop103
+       do
+                echo " --------启动 $i 采集flume-------"
+                ssh $i "nohup /opt/module/flume/bin/flume-ng agent --conf-file/opt/module/flume/conf/file-flume-kafka.conf --name a1-Dflume.root.logger=INFO,LOGFILE >/dev/null 2>&1 &"
+       done
+};; 
+"stop"){
+       for i in hadoop102 hadoop103
+       do
+                echo " --------停止 $i 采集flume-------"
+                ssh $i"ps -ef | grep file-flume-kafka | grep -v grep |awk '{print $2}' | xargskill"
+       done
+};;
+esac
+```
+
+
+
+说明1：nohup，该命令可以在你退出帐户/关闭终端之后继续运行相应的进程。nohup就是不挂起的意思，不挂断地运行命令。
+
+说明2：/dev/null代表linux的空设备文件，所有往这个文件里面写入的内容都会丢失，俗称“黑洞”。这边是为了节省我们的磁盘空间，企业开发中可以留下这些日志。
+
+标准输入0：从键盘获得输入 /proc/self/fd/0 
+
+标准输出1：输出到屏幕（即控制台） /proc/self/fd/1 
+
+错误输出2：输出到屏幕（即控制台） /proc/self/fd/2
+
+2）增加脚本执行权限
+
+```
+[xzt@hadoop102 bin]$ chmod 777 f1.sh
+```
+
+3）f1集群启动脚本
+
+```
+[xzt@hadoop102 module]$ f1.sh start
+```
+
+4）f1集群停止脚本
+
+```
+[xzt@hadoop102 module]$ f1.sh stop
+```
+
 
