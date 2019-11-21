@@ -1651,7 +1651,7 @@ Spooling Directory Source 监控目录，不支持断点续传。
 
 
 
-![日志采集flume配置](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\日志采集flume配置.png)
+![日志采集flume配置](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E6%97%A5%E5%BF%97%E9%87%87%E9%9B%86flume%E9%85%8D%E7%BD%AE.png)
 
 
 
