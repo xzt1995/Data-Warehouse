@@ -2185,7 +2185,7 @@ Kafka机器数量=2 * (50 * 2 /100）+ 1=3台
 
 ### 1）Flume配置分析
 
-![消费Kafka的flume](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\消费Kafka的flume.png)
+![消费Kafka的flume](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E6%B6%88%E8%B4%B9Kafka%E7%9A%84flume.png)
 
 ### 2）Flume的具体配置如下：
 
@@ -2612,7 +2612,7 @@ esac
 
 
 
-![Hadoop日志生成](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\Hadoop日志生成.png)
+![Hadoop日志生成](https://github.com/xzt1995/Data-Warehouse/blob/master/img/Hadoop%E6%97%A5%E5%BF%97%E7%94%9F%E6%88%90.png)
 
 可以看到目录下多了一个/origin_data的目录，里面有topic_start 和 topic_event 两个文件夹，里面会生成当前日期的日志文件。
 
@@ -2675,9 +2675,9 @@ Connection to hadoop104 closed.
 
 #### 4） 查看数据
 
-![event测试数据生成](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\event测试数据生成.png)
+![event测试数据生成](https://github.com/xzt1995/Data-Warehouse/blob/master/img/event%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE%E7%94%9F%E6%88%90.png)
 
-![start测试数据生成](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\start测试数据生成.png)
+![start测试数据生成](https://github.com/xzt1995/Data-Warehouse/blob/master/img/start%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE%E7%94%9F%E6%88%90.png)
 
 
 
