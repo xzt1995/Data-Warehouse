@@ -1814,3 +1814,871 @@ esac
 ```
 
 
+
+
+
+## 七 Kafka安装使用
+
+
+
+![日志采集flume](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E6%97%A5%E5%BF%97%E9%87%87%E9%9B%86flume.png)
+
+
+
+Kafka在系统的作用是接受flume采集的日志文件，将数据提供给后续不同的业务需求的接口。
+
+集群规划：
+
+|       | 服务器hadoop102 | 服务器hadoop103 | 服务器hadoop104 |
+| ----- | ------------ | ------------ | ------------ |
+| Kafka | Kafka        | Kafka        | Kafka        |
+
+### 1  jar包下载
+
+​	下载地址：<http://kafka.apache.org/downloads.html>
+
+​	版本选择：kafka_2.11-0.11.0.0.tgz 千万别选错了，不同版本可能会导致集群兼容性问题
+
+
+
+### 2 Kafka集群部署
+
+
+
+1）解压安装包
+
+```
+[xzt@hadoop102 software]$tar -zxvf kafka_2.11-0.11.0.0.tgz -C /opt/module/
+```
+
+2）修改解压后的文件名称
+
+```
+[xzt@hadoop102 module]$ mv kafka_2.11-0.11.0.0/ kafka
+```
+
+3）在/opt/module/kafka目录下创建logs文件夹
+
+```
+[xzt@hadoop102 kafka]$mkdir logs
+```
+
+4）修改配置文件
+
+```
+[xzt@hadoop102 kafka]$ cd config/
+```
+
+```
+[xzt@hadoop102 config]$ vi server.properties
+```
+
+修改以下内容：
+
+```
+#broker的全局唯一编号，不能重复
+broker.id=0
+#删除topic功能使能
+delete.topic.enable=true
+#处理网络请求的线程数量
+num.network.threads=3
+#用来处理磁盘IO的现成数量
+num.io.threads=8
+#发送套接字的缓冲区大小
+socket.send.buffer.bytes=102400
+#接收套接字的缓冲区大小
+socket.receive.buffer.bytes=102400
+#请求套接字的缓冲区大小
+socket.request.max.bytes=104857600
+#kafka运行日志存放的路径	
+log.dirs=/opt/module/kafka/logs
+#topic在当前broker上的分区个数
+num.partitions=1
+#用来恢复和清理data下数据的线程数量
+num.recovery.threads.per.data.dir=1
+#segment文件保留的最长时间，超时将被删除
+log.retention.hours=168
+#配置连接Zookeeper集群地址
+zookeeper.connect=hadoop102:2181,hadoop103:2181,hadoop104:2181
+
+```
+
+5）配置环境变量
+
+```
+[xzt@hadoop102 module]$ sudo vi /etc/profile
+```
+
+ 
+
+```
+#KAFKA_HOME
+
+export KAFKA_HOME=/opt/module/kafka
+
+export PATH=PATH:KAFKA_HOME/bin
+
+
+```
+
+```
+[xzt@hadoop102 module]$source /etc/profile
+```
+
+6）分发安装包
+
+```
+[xzt@hadoop102 module]$ xsync kafka/
+```
+
+**注意：分发之后记得配置其他机器的环境变量**
+
+7）分别在hadoop103和hadoop104上修改配置文件/opt/module/kafka/config/server.properties中的broker.id=1、broker.id=2
+
+ **注：broker.id不得重复**
+
+### 3 Kafka集群启动停止脚本
+
+1）在/home/xzt/bin目录下创建脚本kf.sh
+
+```
+[xzt@hadoop102bin]$ vim kf.sh
+```
+
+​        在脚本中填写如下内容
+
+```
+#!/bin/bash
+
+ 
+
+case$1 in
+
+"start"){
+
+        for i in hadoop102 hadoop103 hadoop104
+
+        do
+
+                echo " --------启动 $i Kafka-------"
+
+                # 用于KafkaManager监控
+
+                ssh $i "export JMX_PORT=9988 &&/opt/module/kafka/bin/kafka-server-start.sh -daemon /opt/module/kafka/config/server.properties"
+
+        done
+
+};;
+
+"stop"){
+
+        for i in hadoop102 hadoop103 hadoop104
+
+        do
+
+                echo " --------停止 $i Kafka-------"
+
+                ssh $i "/opt/module/kafka/bin/kafka-server-stop.shstop"
+
+        done
+
+};;
+
+esac
+
+```
+
+**说明：启动Kafka时要先开启JMX端口，是用于后续KafkaManager监控。kafka对zookeeper有依赖，启动Kafka前要先启动zookeeper集群**
+
+2）增加脚本执行权限
+
+```
+[xzt@hadoop102 bin]$ chmod 777 kf.sh
+```
+
+3）kf集群启动脚本
+
+```
+[xzt@hadoop102 module]$ kf.sh start
+```
+
+4）kf集群停止脚本
+
+```
+[xzt@hadoop102 module]$ kf.sh stop
+```
+
+### 4 创建Kafka Topic
+
+1）查看所有主题
+
+```
+[xzt@hadoop102 kafka]$ bin/kafka-topics.sh --zookeeper hadoop102:2181 --list
+```
+
+2）创建启动日志主题
+
+```
+[xzt@hadoop102 kafka]$bin/kafka-topics.sh --zookeeperhadoop102:2181,hadoop103:2181,hadoop104:2181 --create --replication-factor 1 --partitions 1 --topic topic_start
+```
+
+3）创建事件日志主题
+
+```
+[xzt@hadoop102 kafka]$bin/kafka-topics.sh --zookeeper hadoop102:2181,hadoop103:2181,hadoop104:2181  --create --replication-factor 1 --partitions1 --topic topic_event
+```
+
+4 ) **注意，如果你此时集群正在运行，flume的任务在后台跑，你会发现这两个topic已经存在，是因为flume会在卡夫卡启动后自动生成这两个topic，并将数据传输进去。如果出现这种情况，你可以查看topic的数据，如果出现了符合我们清洗过后数据的样子，能说明你的集群安装的没问题**
+
+
+
+### 5 Kafka Manager安装
+
+Kafka Manager是yahoo的一个Kafka监控管理项目。
+
+1）下载地址
+
+<https://github.com/yahoo/kafka-manager>
+
+下载之后编译源码，编译完成后，拷贝出**：kafka-manager-1.3.3.22.zip**
+
+2）拷贝kafka-manager-1.3.3.22.zip到hadoop102的/opt/module目录
+
+```
+[xzt@hadoop102module]$ pwd
+/opt/module
+```
+
+3）解压kafka-manager-1.3.3.22.zip到/opt/module目录
+
+```
+[xzt@hadoop102 module]$ unzip kafka-manager-1.3.3.22.zip
+```
+
+4）进入到/opt/module/kafka-manager-1.3.3.22/conf目录，在application.conf文件中修改kafka-manager.zkhosts
+
+```
+[xzt@hadoop102 conf\]$ vim application.conf
+```
+
+修改为：
+
+```
+kafka-manager.zkhosts="hadoop102:2181,hadoop103:2181,hadoop104:2181"
+```
+
+5）启动KafkaManager
+
+```
+[xzt@hadoop102 kafka-manager-1.3.3.22]$
+nohup bin/kafka-manager   -Dhttp.port=7456 >/opt/module/kafka-manager-1.3.3.22/start.log 2>&1 &
+```
+
+6）在浏览器中打开
+
+<http://hadoop102:7456>
+
+
+
+![kafkamanager1](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\kafkamanager1.png)
+
+可以看到这个界面，选择添加 cluster；
+
+![kafkamanager2](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\kafkamanager2.png)
+
+我们要配置好Zookeeper的Hosts，Cluster的Name，Kafka的版本，点击确定。
+
+![kafkamanager3](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\kafkamanager3.png)
+
+至此，就可以查看整个Kafka集群的状态，包括：Topic的状态、Brokers的状态、Cosumer的状态。
+
+在Kafka的/opt/module/kafka-manager-1.3.3.22/application.home_IS_UNDEFINED 目录下面，可以看到Kafka-Manager的日志。
+
+
+
+7）KafkaManager使用
+
+https://blog.csdn.net/u011089412/article/details/87895652
+
+
+
+8 ）KafkaManager启动停止脚本
+
+
+
+1）在/home/xzt/bin目录下创建脚本km.sh
+
+```
+[xzt@hadoop102 bin]$ vim km.sh
+```
+
+​        在脚本中填写如下内容
+
+```
+#! /bin/bash
+
+ 
+
+case $1 in
+
+"start"){
+
+       echo " -------- 启动 KafkaManager -------"
+
+       nohup /opt/module/kafka-manager-1.3.3.22/bin/kafka-manager   -Dhttp.port=7456 >start.log 2>&1 &
+
+};;
+
+"stop"){
+
+       echo " -------- 停止 KafkaManager -------"
+
+       ps -ef | grep ProdServerStart | grep -v grep |awk '{print $2}' | xargskill 
+
+};;
+
+esac
+
+```
+
+
+
+2）增加脚本执行权限
+
+```
+[xzt@hadoop102 bin]$ chmod 777 km.sh
+```
+
+3）km集群启动脚本
+
+```
+[xzt@hadoop102 module]$ km.sh start
+```
+
+4）km集群停止脚本
+
+```
+[xzt@hadoop102 module]$ km.sh stop
+```
+
+### 6 Kafka机器数量计算
+
+Kafka机器数量（经验公式）=2 *（峰值生产速度 * 副本数/100）+1
+
+先要预估一天大概产生多少数据，然后用Kafka自带的生产压测（只测试Kafka的写入速度，保证数据不积压），计算出峰值生产速度。再根据设定的副本数，就能预估出需要部署Kafka的数量。
+
+比如我们采用压力测试测出写入的速度是10M/s一台，峰值的业务数据的速度是50M/s。副本数为2。
+
+Kafka机器数量=2 * (50 * 2 /100）+ 1=3台
+
+
+
+## 八 消费Kafka数据Flume
+
+![日志采集flume](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E6%97%A5%E5%BF%97%E9%87%87%E9%9B%86flume.png)
+
+集群规划：
+
+|                | 服务器hadoop102 | 服务器hadoop103 | 服务器hadoop104 |
+| -------------- | ------------ | ------------ | ------------ |
+| Flume（消费Kafka） |              |              | Flume        |
+
+### 1）Flume配置分析
+
+![消费Kafka的flume](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\消费Kafka的flume.png)
+
+### 2）Flume的具体配置如下：
+
+（1）在hadoop104的/opt/module/flume/conf目录下创建kafka-flume-hdfs.conf文件
+
+```
+[xzt@hadoop104conf]$ vim kafka-flume-hdfs.conf
+```
+
+在文件配置如下内容
+
+```shell
+## 组件定义
+a1.sources = r1 r2 
+a1.channels = c1 c2 
+a1.sinks = k1 k2
+
+## r1
+a1.sources.r1.type = org.apache.flume.source.kafka.KafkaSource
+a1.sources.r1.kafka.bootstrap.servers = hadoop102:9092,hadoop103:9092,hadoop104:9092
+# 抓取的主题
+a1.sources.r1.kafka.topics = topic_start
+# 一次抓取数据的个数
+a1.sources.r1.batchSize = 5000
+# 延迟时间
+a1.sources.r1.batchDurationMillis = 2000
+
+## r2
+a1.sources.r2.type = org.apache.flume.source.kafka.KafkaSource
+a1.sources.r2.kafka.bootstrap.servers = hadoop102:9092,hadoop103:9092,hadoop104:9092
+# 抓取的主题
+a1.sources.r2.kafka.topics = topic_event
+# 一次抓取数据的个数
+a1.sources.r2.batchSize = 5000
+# 延迟时间
+a1.sources.r2.batchDurationMillis = 2000
+
+
+## c1
+a1.channels.c1.type = file
+# 存储检查点文件的目录
+a1.channels.c1.checkpointDir = /opt/module/flume/checkpoint/behavior1
+# 文件缓存位置
+a1.channels.c1.dataDirs = /opt/module/flume/data/behavior1/
+# 单个文件最大大小
+a1.channels.c1.maxFileSize = 2146435071
+# 最大容量
+a1.channels.c1.capacity = 1000000
+# 超时时间（秒）
+a1.channels.c1.keep-alive = 6
+
+## c2
+a1.channels.c2.type = file
+a1.channels.c2.checkpointDir = /opt/module/flume/checkpoint/behavior2
+a1.channels.c2.dataDirs = /opt/module/flume/data/behavior2/
+a1.channels.c2.maxFileSize = 2146435071
+a1.channels.c2.capacity = 1000000
+a1.channels.c2.keep-alive = 6
+
+## k1
+a1.sinks.k1.type = hdfs
+# hdfs 路径
+a1.sinks.k1.hdfs.path = /origin_data/gmall/log/topic_start/%Y-%m-%d 
+# 文件前缀名
+a1.sinks.k1.hdfs.filePrefix = logstart-
+# 以下三个参数的作用是 10秒变一次文件夹名称（根据当前时间）
+a1.sinks.k1.hdfs.round = true
+a1.sinks.k1.hdfs.roundValue = 10
+a1.sinks.k1.hdfs.roundUnit = second
+
+
+
+## k2
+a1.sinks.k2.type = hdfs
+a1.sinks.k2.hdfs.path = /origin_data/gmall/log/topic_event/%Y-%m-%d
+a1.sinks.k2.hdfs.filePrefix = logevent-
+a1.sinks.k2.hdfs.round = true
+a1.sinks.k2.hdfs.roundValue = 10
+a1.sinks.k2.hdfs.roundUnit = second
+
+
+## 不要产生大量小文件
+# 每一个文件十秒滚动一次
+a1.sinks.k1.hdfs.rollInterval = 10
+# 每一个文件大小到达128M时滚动文件
+a1.sinks.k1.hdfs.rollSize = 134217728
+# 不根据传入的event 数量来滚动文件
+a1.sinks.k1.hdfs.rollCount = 0
+
+a1.sinks.k2.hdfs.rollInterval = 10
+a1.sinks.k2.hdfs.rollSize = 134217728
+a1.sinks.k2.hdfs.rollCount = 0
+
+## 控制输出文件是原生文件（采用lzop压缩格式）。
+a1.sinks.k1.hdfs.fileType = CompressedStream 
+a1.sinks.k2.hdfs.fileType = CompressedStream 
+
+a1.sinks.k1.hdfs.codeC = lzop
+a1.sinks.k2.hdfs.codeC = lzop
+
+## 拼装
+a1.sources.r1.channels = c1
+a1.sinks.k1.channel= c1
+
+a1.sources.r2.channels = c2
+a1.sinks.k2.channel= c2
+```
+
+
+
+### 3)  Flume内存优化
+
+1）问题描述：如果启动消费Flume抛出如下异常
+
+```
+ERROR hdfs.HDFSEventSink: process failed
+java.lang.OutOfMemoryError: GC overhead limitexceeded
+```
+
+2）解决方案步骤：
+
+（1）在hadoop102服务器的/opt/module/flume/conf/flume-env.sh文件中增加如下配置
+
+```
+export JAVA_OPTS="-Xms100m -Xmx2000m -Dcom.sun.management.jmxremote"
+```
+
+（2）同步配置到hadoop103、hadoop104服务器
+
+```
+[xzt@hadoop102 conf]$ xsync flume-env.sh
+```
+
+ 3）Flume内存参数设置及优化
+
+JVM heap一般设置为4G或更高，部署在单独的服务器上（4核8线程16G内存）
+
+-Xmx与-Xms最好设置一致，减少内存抖动带来的性能影响，如果设置不一致容易导致频繁fullgc。
+
+### 4)  Flume组件
+
+
+
+1）FileChannel和MemoryChannel区别
+
+MemoryChannel传输数据速度更快，但因为数据保存在JVM的堆内存中，Agent进程挂掉会导致数据丢失，适用于对数据质量要求不高的需求。
+
+FileChannel传输速度相对于Memory慢，但数据安全保障高，Agent进程挂掉也可以从失败中恢复数据。
+
+2）FileChannel优化
+
+通过配置dataDirs指向多个路径，每个路径对应不同的硬盘，增大Flume吞吐量。
+
+官方说明如下：
+
+> Comma separated list of directories forstoring log files. Using multiple directories on separate disks can improvefile channel peformance
+
+checkpointDir和backupCheckpointDir也尽量配置在不同硬盘对应的目录中，保证checkpoint坏掉后，可以快速使用backupCheckpointDir恢复数据
+
+3）Sink：HDFS Sink
+
+（1）HDFS存入大量小文件，有什么影响？
+
+**元数据层面：**每个小文件都有一份元数据，其中包括文件路径，文件名，所有者，所属组，权限，创建时间等，这些信息都保存在Namenode内存中。所以小文件过多，会占用Namenode服务器大量内存，影响Namenode性能和使用寿命
+
+**计算层面：**默认情况下MR会对每个小文件启用一个Map任务计算，非常影响计算性能。同时也影响磁盘寻址时间。
+
+ （2）HDFS小文件处理
+
+官方默认的这三个参数配置写入HDFS后会产生小文件，hdfs.rollInterval、hdfs.rollSize、hdfs.rollCount
+
+基于以上hdfs.rollInterval=3600，hdfs.rollSize=134217728，hdfs.rollCount=0，hdfs.roundValue=10，hdfs.roundUnit= second几个参数综合作用，效果如下：
+
+（1）tmp文件在达到128M时会滚动生成正式文件
+
+（2）tmp文件创建超10秒时会滚动生成正式文件
+
+举例：在2018-01-0105:23的时侯sink接收到数据，那会产生如下tmp文件：
+
+/xzt/20180101/xzt.201801010520.tmp
+
+即使文件内容没有达到128M，也会在05:33时滚动生成正式文件
+
+
+
+### 5 ) 日志消费Flume启动停止脚本
+
+1）在/home/xzt/bin目录下创建脚本f2.sh
+
+```
+[xzt@hadoop102 bin]$ vim f2.sh
+```
+
+在脚本中填写如下内容
+
+```
+#! /bin/bash
+
+case $1 in
+"start"){
+        for i in hadoop104
+        do
+                echo " --------启动 $i 消费flume-------"
+                ssh $i "nohup /opt/module/flume/bin/flume-ng agent --conf-file /opt/module/flume/conf/kafka-flume-hdfs.conf --name a1 -Dflume.root.logger=INFO,LOGFILE >/opt/module/flume/log.txt   2>&1 &"
+        done
+};;
+"stop"){
+        for i in hadoop104
+        do
+                echo " --------停止 $i 消费flume-------"
+                ssh $i "ps -ef | grep kafka-flume-hdfs | grep -v grep |awk '{print \$2}' | xargs kill"
+        done
+
+};;
+esac
+
+```
+
+2）增加脚本执行权限
+
+```
+[xzt@hadoop102 bin]$ chmod 777 f2.sh
+```
+
+3）f2集群启动脚本
+
+```
+[xzt@hadoop102 module]$ f2.sh start
+```
+
+4）f2集群停止脚本
+
+```
+[xzt@hadoop102 module]$ f2.sh stop
+```
+
+
+
+
+
+## 九 采集通道启动/停止脚本
+
+1）在/home/xzt/bin目录下创建脚本cluster.sh
+
+```
+[xzt@hadoop102 bin]$ vim cluster.sh
+```
+
+在脚本中填写如下内容
+
+```
+#! /bin/bash
+
+case $1 in
+"start"){
+	echo " -------- 启动 集群 -------"
+
+	echo " -------- 启动 hadoop集群 -------"
+	/opt/module/hadoop-2.7.2/sbin/start-dfs.sh 
+	ssh hadoop103 "/opt/module/hadoop-2.7.2/sbin/start-yarn.sh"
+
+	#启动 Zookeeper集群
+	zk.sh start
+
+sleep 4s;
+
+	#启动 Flume采集集群
+	f1.sh start
+
+	#启动 Kafka采集集群
+	kf.sh start
+
+sleep 6s;
+
+	#启动 Flume消费集群
+	f2.sh start
+
+	#启动 KafkaManager
+	km.sh start
+};;
+"stop"){
+    echo " -------- 停止 集群 -------"
+
+	#停止 KafkaManager
+	km.sh stop
+
+    #停止 Flume消费集群
+	f2.sh stop
+
+	#停止 Kafka采集集群
+	kf.sh stop
+
+    sleep 6s;
+
+	#停止 Flume采集集群
+	f1.sh stop
+
+	#停止 Zookeeper集群
+	zk.sh stop
+
+	echo " -------- 停止 hadoop集群 -------"
+	ssh hadoop103 "/opt/module/hadoop-2.7.2/sbin/stop-yarn.sh"
+	/opt/module/hadoop-2.7.2/sbin/stop-dfs.sh 
+};;
+esac
+
+```
+
+注意：性能较差的机器可以增加一些睡眠时间
+
+2）增加脚本执行权限
+
+```
+[xzt@hadoop102 bin]$ chmod 777 cluster.sh
+```
+
+3）cluster集群启动脚本
+
+```
+[xzt@hadoop102 module]$ cluster.sh start
+```
+
+4） 查看集群启动情况
+
+```
+[xzt@hadoop102 bin]$ xcall.sh jps
+-----------------hadoop102-------------
+8548 NodeManager
+9252 ProdServerStart
+8197 DataNode
+9414 Jps
+7974 NameNode
+8634 QuorumPeerMain
+8810 Application
+9147 Kafka
+-----------------hadoop103-------------
+8160 ResourceManager
+8401 NodeManager
+7987 DataNode
+9430 Jps
+9320 Kafka
+8701 QuorumPeerMain
+8975 Application
+-----------------hadoop104-------------
+7602 Jps
+6788 SecondaryNameNode
+6900 NodeManager
+6648 DataNode
+7385 Kafka
+6985 QuorumPeerMain
+7500 Application
+
+```
+
+5）cluster集群停止脚本
+
+```
+[xzt@hadoop102 module]$ cluster.sh stop
+```
+
+注意：如果机器性能差，停止集群后会剩下一些进程，此时再用kill -9 关闭即可。
+
+
+
+## 十 日志数据生成
+
+
+
+### 1 日志测试
+
+#### 1）集群启动
+
+```
+[xzt@hadoop102 ~]$ cluster.sh start
+```
+
+#### 2）查看集群启动情况
+
+```
+[xzt@hadoop102 ~]$ xcall.sh jps
+-----------------hadoop102-------------
+3909 Application
+3733 QuorumPeerMain
+3175 NameNode
+4347 ProdServerStart
+4238 Kafka
+3342 DataNode
+4510 Jps
+3647 NodeManager
+-----------------hadoop103-------------
+3463 NodeManager
+4280 Kafka
+4393 Jps
+3739 QuorumPeerMain
+3310 ResourceManager
+3135 DataNode
+3935 Application
+-----------------hadoop104-------------
+3872 Kafka
+3474 QuorumPeerMain
+3987 Application
+4089 Jps
+3275 SecondaryNameNode
+3388 NodeManager
+3132 DataNode
+
+```
+
+正常情况下，集群的应用分布应该是这样。
+
+#### 3）日志生成
+
+在确保集群启动成功的前提下，我们调用日志生成脚本
+
+```
+[xzt@hadoop102 ~]$ lg.sh
+```
+
+
+
+#### 4）查看Hadoop集群
+
+用浏览器打开 http://hadoop102:50070/dfshealth.html#tab-overview 
+
+
+
+![Hadoop日志生成](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\Hadoop日志生成.png)
+
+可以看到目录下多了一个/origin_data的目录，里面有topic_start 和 topic_event 两个文件夹，里面会生成当前日期的日志文件。
+
+如果日志文件生成成功，就说明你的集群搭建的没有问题。
+
+至此，我们第一部分的数据采集平台搭建就完成了，模拟了企业生产环境中日志的实时生成，利用flume,kafka来将日志数据清洗，整理后上传至hdfs的过程。
+
+
+
+### 2 测试数据生成
+
+由于我之前的整理的资料都是基于上一次我搭建数仓的时间来整理的，为了省事，下面我们要修改一下服务器时间来生成测试数据，分别是2月3日，2月10日，2月11日。
+
+#### 1）修改服务器时间
+
+修改时间前，确保集群关闭，所有服务都断开。再利用我们之前写的时间脚本来修改服务器时间
+
+```
+[xzt@hadoop102 logs]$ dt.sh 2019-02-03
+[sudo] password for xzt: 
+2019年 02月 03日 星期日 00:00:00 CST
+Connection to hadoop102 closed.
+[sudo] password for xzt: 
+2019年 02月 03日 星期日 00:00:00 CST
+Connection to hadoop103 closed.
+[sudo] password for xzt: 
+2019年 02月 03日 星期日 00:00:00 CST
+Connection to hadoop104 closed.
+
+```
+
+```
+[xzt@hadoop102 logs]$ xcall.sh date
+-----------------hadoop102-------------
+2019年 02月 03日 星期日 00:00:31 CST
+-----------------hadoop103-------------
+2019年 02月 03日 星期日 00:00:29 CST
+-----------------hadoop104-------------
+2019年 02月 03日 星期日 00:00:27 CST
+
+```
+
+#### 2 ）启动集群
+
+```
+[xzt@hadoop102 logs]$ cluster.sh start
+```
+
+#### 3 )  日志生成
+
+```
+[xzt@hadoop102 logs]$ lg.sh
+```
+
+然后在hadoop集群上看一下是否已经生成2月3日的数据。然后重复上面操作，继续生成10日和11日的数据。
+
+注意：经过我的测试，服务器向后修改时间不需要重启集群，所以我们先修改到3日，生成数据后依次改成10日，11日，就不需要重复关闭集群了。
+
+
+
+#### 4） 查看数据
+
+![event测试数据生成](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\event测试数据生成.png)
+
+![start测试数据生成](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\start测试数据生成.png)
+
+
+
+这样我们的测试数据就已经生成好了，这就是储存在HDFS的原始数据，后面我们根据这些数据来创建数仓，分析数据，得到我们需要的一些指标。
