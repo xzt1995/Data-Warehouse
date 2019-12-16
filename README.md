@@ -24,7 +24,7 @@
 
 ### 一：项目流程设计
 
-![系统流程设计](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%B3%BB%E7%BB%9F%E6%B5%81%E7%A8%8B%E8%AE%BE%E8%AE%A1.png)
+![系统流程设计](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/%E7%B3%BB%E7%BB%9F%E6%B5%81%E7%A8%8B%E8%AE%BE%E8%AE%A1.png)
 
 ### 二：技术选型
 
@@ -40,7 +40,7 @@
 
 ### 三：集群规划
 
-![集群规划](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92.png)
+![集群规划](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92.png)
 
 
 
@@ -811,12 +811,12 @@ hadoop104
 
 ​    浏览器中输入：<http://hadoop102:50070/explorer.html#/>
 
-![namenode](https://github.com/xzt1995/Data-Warehouse/blob/master/img/namenode.png)
+![namenode](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/namenode.png)
 
  浏览器中输入: <http://hadoop103:8088/cluster>
 
 
-![yarn](https://github.com/xzt1995/Data-Warehouse/blob/master/img/yarn.png)
+![yarn](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/yarn.png)
 
 
 看到这两个页面就表示集群安装成功了。
@@ -1297,7 +1297,7 @@ done
 
 ### 1 集群规划
 
-![日志采集flume](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E6%97%A5%E5%BF%97%E9%87%87%E9%9B%86flume.png)
+![日志采集flume](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/%E6%97%A5%E5%BF%97%E9%87%87%E9%9B%86flume.png)
 
 
 
@@ -1651,7 +1651,7 @@ Spooling Directory Source 监控目录，不支持断点续传。
 
 
 
-![日志采集flume配置](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E6%97%A5%E5%BF%97%E9%87%87%E9%9B%86flume%E9%85%8D%E7%BD%AE.png)
+![日志采集flume配置](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/%E6%97%A5%E5%BF%97%E9%87%87%E9%9B%86flume%E9%85%8D%E7%BD%AE.png)
 
 
 
@@ -1821,7 +1821,7 @@ esac
 
 
 
-![日志采集flume](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E6%97%A5%E5%BF%97%E9%87%87%E9%9B%86flume.png)
+![日志采集flume](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/%E6%97%A5%E5%BF%97%E9%87%87%E9%9B%86flume.png)
 
 
 
@@ -2080,15 +2080,15 @@ nohup bin/kafka-manager   -Dhttp.port=7456 >/opt/module/kafka-manager-1.3.3.22/s
 
 
 
-![kafkamanager1](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\kafkamanager1.png)
+![kafkamanager1](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/kafkamanager1.png)
 
 可以看到这个界面，选择添加 cluster；
 
-![kafkamanager2](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\kafkamanager2.png)
+![kafkamanager2](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/kafkamanager2.png)
 
 我们要配置好Zookeeper的Hosts，Cluster的Name，Kafka的版本，点击确定。
 
-![kafkamanager3](D:\Workspaces\Data-Warehouse\Data-Warehouse\img\kafkamanager3.png)
+![kafkamanager3](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/kafkamanager3.png)
 
 至此，就可以查看整个Kafka集群的状态，包括：Topic的状态、Brokers的状态、Cosumer的状态。
 
@@ -2175,7 +2175,7 @@ Kafka机器数量=2 * (50 * 2 /100）+ 1=3台
 
 ## 八 消费Kafka数据Flume
 
-![日志采集flume](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E6%97%A5%E5%BF%97%E9%87%87%E9%9B%86flume.png)
+![日志采集flume](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/%E6%97%A5%E5%BF%97%E9%87%87%E9%9B%86flume.png)
 
 集群规划：
 
@@ -2185,7 +2185,7 @@ Kafka机器数量=2 * (50 * 2 /100）+ 1=3台
 
 ### 1）Flume配置分析
 
-![消费Kafka的flume](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E6%B6%88%E8%B4%B9Kafka%E7%9A%84flume.png)
+![消费Kafka的flume](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/%E6%B6%88%E8%B4%B9Kafka%E7%9A%84flume.png)
 
 ### 2）Flume的具体配置如下：
 
@@ -2612,7 +2612,7 @@ esac
 
 
 
-![Hadoop日志生成](https://github.com/xzt1995/Data-Warehouse/blob/master/img/Hadoop%E6%97%A5%E5%BF%97%E7%94%9F%E6%88%90.png)
+![Hadoop日志生成](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/Hadoop%E6%97%A5%E5%BF%97%E7%94%9F%E6%88%90.png)
 
 可以看到目录下多了一个/origin_data的目录，里面有topic_start 和 topic_event 两个文件夹，里面会生成当前日期的日志文件。
 
@@ -2675,9 +2675,9 @@ Connection to hadoop104 closed.
 
 #### 4） 查看数据
 
-![event测试数据生成](https://github.com/xzt1995/Data-Warehouse/blob/master/img/event%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE%E7%94%9F%E6%88%90.png)
+![event测试数据生成](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/event%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE%E7%94%9F%E6%88%90.png)
 
-![start测试数据生成](https://github.com/xzt1995/Data-Warehouse/blob/master/img/start%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE%E7%94%9F%E6%88%90.png)
+![start测试数据生成](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/start%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE%E7%94%9F%E6%88%90.png)
 
 
 
