@@ -1617,7 +1617,7 @@ JAVA_OPTS="-Dflume.monitoring.type=ganglia
 [xzt@hadoop102 flume]$ telnet localhost 44444
 ```
 
-![ganggia](https://github.com/xzt1995/Data-Warehouse/blob/master/img/ganggia.png)
+![ganggia](https://github.com/xzt1995/Data-Warehouse/blob/master/img/%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86/ganggia.png)
 
 
 
